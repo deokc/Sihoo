@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#fbf8f1" />
+  <title>강시후 | profile & feed</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&family=Nanum+Pen+Script&display=swap');
+
+    :root{
+      --ink:#292927;
+      --sub:#6d6c68;
+      --paper:#fffdf7;
+      --paper-deep:#f7f1e7;
+      --desk:#ece8df;
+      --line:#d9d1c4;
+      --pink:#f8c9cf;
+      --yellow:#ffe68d;
+      --sky:#cce9f2;
+      --lav:#ded4f8;
+      --mint:#cceac8;
+      --red:#e97272;
+      --ig:#262626;
+      --ig-line:#dbdbdb;
+      --ig-blue:#0095f6;
+      --body:"Gowun Dodum", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+      --cute:"Gaegu", "Gowun Dodum", cursive;
+      --pen:"Nanum Pen Script", "Gaegu", cursive;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--desk);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    img{display:block;width:100%;height:100%;object-fit:cover}
+    a{color:inherit}
+
+    /* shared tab bar */
+    .topbar{position:sticky;top:0;z-index:30;background:rgba(255,253,247,.87);backdrop-filter:blur(15px);border-bottom:1px solid rgba(41,41,39,.1)}
+    .topbar-inner{width:min(1100px,calc(100% - 32px));height:68px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .brand{font-family:var(--cute);font-size:25px;font-weight:700;letter-spacing:-.04em;background:transparent;border:0;color:var(--ink);padding:0}
+    .brand small{font-family:var(--body);font-size:11px;font-weight:700;color:#a39d95;margin-left:7px;letter-spacing:.02em}
+    .tabs{display:flex;gap:6px;padding:4px;border:1px solid #e4ddd1;border-radius:999px;background:#fffdf9}
+    .tab{border:0;background:transparent;color:#7a756e;padding:8px 15px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:-.03em}
+    .tab.active{background:#292927;color:#fff}
+    .page{display:none;min-height:calc(100vh - 68px)}
+    .page.active{display:block}
+
+    /* profile paper */
+    .profile-page{padding:48px 18px 72px;overflow:hidden;background:
+      radial-gradient(circle at 13% 15%,rgba(255,241,180,.38) 0 7%,transparent 24%),
+      radial-gradient(circle at 88% 77%,rgba(201,229,247,.58) 0 9%,transparent 27%),
+      linear-gradient(90deg,rgba(255,255,255,.32) 1px,transparent 1px),
+      linear-gradient(rgba(255,255,255,.32) 1px,transparent 1px),
+      var(--desk);
+      background-size:auto,auto,28px 28px,28px 28px,auto;
+    }
+    .paper{position:relative;width:min(1040px,100%);margin:0 auto;padding:46px 54px 54px;background:var(--paper);border:1px solid #e6decf;border-radius:7px;box-shadow:0 20px 46px rgba(71,57,39,.15), 0 2px 0 rgba(255,255,255,.85) inset;isolation:isolate}
+    .paper:before{content:"";position:absolute;inset:11px;border:1px dashed rgba(134,121,101,.23);border-radius:3px;pointer-events:none;z-index:-1}
+    .paper:after{content:"";position:absolute;inset:0;opacity:.28;background-image:radial-gradient(rgba(75,63,43,.21) .55px,transparent .65px);background-size:4px 4px;mix-blend-mode:multiply;pointer-events:none;z-index:-1}
+
+    .paper-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:28px}
+    .title-group small{display:block;margin-bottom:4px;font-size:11px;letter-spacing:.15em;color:#999083;font-weight:700}
+    .title-group h1{margin:0;font-family:var(--cute);font-size:46px;line-height:.9;letter-spacing:-.08em;color:#292927}
+    .title-group h1 span{display:inline-block;color:#ef8d9b;transform:rotate(-4deg);margin-left:3px}
+    .paper-date{font-family:var(--pen);font-size:24px;color:#888074;transform:rotate(3deg);white-space:nowrap;padding-top:8px}
+    .paper-date b{color:#6d97a3;font-weight:400}
+
+    .profile-layout{display:grid;grid-template-columns:minmax(290px,360px) 1fr;gap:50px;align-items:start}
+    .photo-zone{position:relative;padding:13px;background:#fff;box-shadow:0 9px 20px rgba(42,34,22,.15);transform:rotate(-1.1deg);border:1px solid #ede4d8}
+    .photo-zone:before,.photo-zone:after{content:"";position:absolute;width:83px;height:24px;background:rgba(243,215,169,.73);top:-11px;z-index:3;box-shadow:0 1px 2px rgba(78,56,23,.08)}
+    .photo-zone:before{left:26px;transform:rotate(-7deg)}
+    .photo-zone:after{right:24px;transform:rotate(7deg)}
+    .main-photo{height:440px;background:linear-gradient(145deg,#2d3544,#6b7180);overflow:hidden;position:relative}
+    .main-photo img{opacity:0;transition:opacity .2s ease}
+    .main-photo.has-image img{opacity:1}
+    .photo-placeholder{position:absolute;inset:0;display:grid;place-items:center;padding:32px;text-align:center;font-family:var(--cute);font-size:23px;line-height:1.25;color:#fff;background:linear-gradient(145deg,#273140,#566173)}
+    .main-photo.has-image .photo-placeholder{display:none}
+    .photo-caption{font-family:var(--pen);font-size:25px;margin:15px 5px 1px;color:#4d4a45;text-align:center}
+    .photo-caption b{font-weight:400;background:linear-gradient(transparent 55%,var(--yellow) 55%)}
+
+    .notes{display:flex;flex-direction:column;gap:20px;padding-top:4px}
+    .section-label{display:flex;align-items:center;gap:10px;font-family:var(--cute);font-size:24px;font-weight:700;letter-spacing:-.05em}
+    .section-label:after{content:"";height:2px;flex:1;background:linear-gradient(90deg,#f4b9bd,transparent)}
+    .quick-info{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 12px}
+    .info-card{padding:12px 12px 11px;border-bottom:1px dashed #d8d0c3}
+    .info-card dt{font-size:11px;color:#918b82;font-weight:700;letter-spacing:.02em;margin-bottom:6px}
+    .info-card dd{margin:0;font-family:var(--cute);font-size:23px;line-height:1.05;letter-spacing:-.045em}
+    .info-card dd.compact{font-size:19px;line-height:1.2}
+    .bio-note{position:relative;padding:20px 19px 18px;background:#fdf8ed;border:1px solid #eee1c8;border-radius:2px;font-size:14px;line-height:1.85;color:#4a4742;box-shadow:3px 4px 0 rgba(238,218,184,.43);transform:rotate(.45deg)}
+    .bio-note:before{content:"";position:absolute;left:28px;top:-9px;width:48px;height:17px;background:rgba(189,220,243,.68);transform:rotate(-5deg)}
+    .bio-note strong{font-weight:800;background:linear-gradient(transparent 57%,var(--mint) 57%,var(--mint) 91%,transparent 91%)}
+    .bio-note em{font-style:normal;background:linear-gradient(transparent 57%,var(--lav) 57%,var(--lav) 91%,transparent 91%)}
+    .list-row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+    .mini-note{position:relative;padding:15px 16px 14px;border-radius:2px;box-shadow:3px 4px 0 rgba(50,43,31,.08);min-height:114px}
+    .mini-note h3{margin:0 0 9px;font-family:var(--cute);font-size:23px;line-height:1;letter-spacing:-.05em}
+    .mini-note p{margin:0;font-size:13px;line-height:1.65;color:#4e4a45;word-break:keep-all}
+    .likes{background:#fff4b5;transform:rotate(-1deg)}
+    .dislikes{background:#e9f4fa;transform:rotate(1deg)}
+    .small-doodle{position:absolute;font-family:var(--pen);font-size:26px;color:#e07a7a;right:28px;bottom:16px;transform:rotate(8deg)}
+    .paper-footer{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:38px;padding-top:18px;border-top:1px dashed #d8d0c3;color:#928b81;font-size:11px;letter-spacing:.03em}
+    .paper-footer b{font-family:var(--cute);font-size:18px;color:#58544e;letter-spacing:-.05em}
+
+    /* instagram-like profile */
+    .instagram-page{background:#fff;min-height:calc(100vh - 68px);color:var(--ig)}
+    .ig-nav{position:sticky;top:68px;z-index:20;height:60px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--ig-line)}
+    .ig-nav-inner{width:min(935px,100%);height:100%;padding:0 20px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .ig-word{font-family:cursive;font-size:31px;font-weight:700;letter-spacing:-.1em;line-height:1}
+    .ig-nav-icons{display:flex;align-items:center;gap:16px}
+    .plain-icon{border:0;background:transparent;color:#111;width:27px;height:27px;padding:0;display:grid;place-items:center}
+    .plain-icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .ig-main{width:min(935px,100%);margin:0 auto;padding:30px 20px 72px}
+    .ig-profile{display:grid;grid-template-columns:150px 1fr;gap:55px;padding:0 28px 44px;align-items:center}
+    .ig-avatar-ring{width:150px;height:150px;border-radius:50%;padding:3px;background:linear-gradient(50deg,#f9ce34,#ee2a7b,#6228d7);margin:auto}
+    .ig-avatar{position:relative;width:100%;height:100%;border-radius:50%;padding:3px;background:#fff;overflow:hidden}
+    .ig-avatar img{border-radius:50%;opacity:0}
+    .ig-avatar.has-image img{opacity:1}
+    .ig-avatar-placeholder{position:absolute;inset:3px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#283446,#667389);color:#fff;font-family:var(--cute);font-size:38px;font-weight:700}
+    .ig-avatar.has-image .ig-avatar-placeholder{display:none}
+    .ig-username-line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+    .ig-username{font-size:20px;font-weight:400;letter-spacing:-.04em;margin-right:5px}
+    .ig-btn{border:0;border-radius:8px;background:#efefef;padding:8px 15px;color:#262626;font-size:14px;font-weight:700}
+    .ig-btn.follow{background:var(--ig-blue);color:#fff}.ig-btn.small{width:34px;padding:8px 0}
+    .ig-stats{display:flex;gap:36px;font-size:14px;margin-bottom:20px}.ig-stats b{font-weight:800;margin-right:3px}
+    .ig-bio{font-size:13px;line-height:1.5}.ig-bio b{display:block;font-weight:800;margin-bottom:2px}.ig-bio a{color:#00376b;font-weight:700;text-decoration:none}
+    .highlights{display:flex;gap:22px;overflow:auto;padding:0 28px 30px}.highlight-item{flex:0 0 76px;text-align:center;font-size:12px;color:#262626}.highlight-circle{width:70px;height:70px;border:1px solid #dbdbdb;border-radius:50%;padding:3px;margin:0 auto 6px}.highlight-circle div{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;background:#f4f4f4;font-size:24px}.feed-tabs{height:53px;border-top:1px solid var(--ig-line);display:flex;align-items:center;justify-content:center;gap:58px}.feed-tab{height:100%;border:0;border-top:1px solid transparent;background:transparent;color:#8e8e8e;font-size:12px;font-weight:700;letter-spacing:.04em;display:flex;align-items:center;gap:7px}.feed-tab.active{color:#262626;border-top-color:#262626}.feed-tab svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.8}
+    .feed{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.feed-item{position:relative;aspect-ratio:1/1;background:#f1f1f1;border:0;overflow:hidden;padding:0}.feed-item img{opacity:0}.feed-item.has-image img{opacity:1}.feed-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:18px;background:linear-gradient(145deg,#e8e8e8,#cfcfcf);font-family:var(--cute);font-size:19px;line-height:1.1;color:#696969}.feed-item.has-image .feed-empty{display:none}.feed-item:hover:after{content:"♡  ·  ◌";position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.42);color:#fff;font-weight:800;font-size:17px}
+
+    /* post modal */
+    .overlay{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:26px;background:rgba(0,0,0,.62)}
+    .overlay.open{display:flex}.post-modal{position:relative;width:min(1120px,100%);height:min(82vh,720px);background:#fff;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.82fr);box-shadow:0 16px 50px rgba(0,0,0,.28)}
+    .modal-close{position:absolute;right:-3px;top:-39px;border:0;background:transparent;color:#fff;font-size:31px;line-height:1;padding:0}.post-image{position:relative;background:#111;min-height:0}.post-image img{opacity:0}.post-image.has-image img{opacity:1}.post-image-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#eee;background:linear-gradient(145deg,#2a2d34,#525863);font-family:var(--cute);font-size:23px}.post-image.has-image .post-image-empty{display:none}.post-copy{display:flex;flex-direction:column;min-height:0}.post-head{height:62px;padding:12px 15px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--ig-line);font-size:14px}.post-mini{width:32px;height:32px;border-radius:50%;overflow:hidden;background:#ddd}.post-mini img{opacity:0}.post-mini.has-image img{opacity:1}.post-comments{flex:1;padding:16px;overflow:auto;font-size:14px;line-height:1.5}.post-comments p{margin:0}.post-comments b{margin-right:5px}.post-actions{border-top:1px solid var(--ig-line);padding:12px 15px;font-size:13px}.post-actions .heart-row{font-size:22px;margin-bottom:7px;letter-spacing:4px}.post-actions b{display:block;margin-bottom:7px}.post-actions small{color:#8e8e8e;font-size:10px;letter-spacing:.04em}
+
+    /* DM */
+    .dm{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.48)}
+    .dm.open{display:flex}.dm-box{width:min(470px,100%);height:min(700px,calc(100vh - 40px));border-radius:12px;background:#fff;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 18px 60px rgba(0,0,0,.28)}
+    .dm-top{height:64px;padding:0 16px;border-bottom:1px solid var(--ig-line);display:flex;align-items:center;justify-content:center;position:relative;font-size:15px;font-weight:800}.dm-close{position:absolute;right:14px;top:14px;border:0;background:transparent;font-size:26px;line-height:1;color:#222}.dm-person{text-align:center}.dm-person small{display:block;color:#8e8e8e;font-weight:400;margin-top:3px}.dm-body{flex:1;min-height:0;overflow:auto;padding:23px 16px;display:flex;flex-direction:column;gap:8px}.dm-intro{text-align:center;padding:6px 0 19px}.dm-intro .dm-big{width:76px;height:76px;border-radius:50%;overflow:hidden;background:linear-gradient(145deg,#283446,#667389);margin:0 auto 9px}.dm-intro .dm-big img{opacity:0}.dm-intro .dm-big.has-image img{opacity:1}.dm-intro b,.dm-intro span,.dm-intro em{display:block}.dm-intro b{font-size:16px;margin-bottom:4px}.dm-intro span{font-size:13px;color:#8e8e8e}.dm-intro em{font-style:normal;font-size:12px;color:#b2b2b2;margin-top:12px}.bubble{max-width:78%;padding:9px 12px;border-radius:18px;font-size:14px;line-height:1.4;word-break:break-word}.bubble.sihoo{align-self:flex-start;background:#efefef;border-bottom-left-radius:4px}.bubble.me{align-self:flex-end;background:#0095f6;color:#fff;border-bottom-right-radius:4px}.typing{align-self:flex-start;padding:8px 12px;border-radius:17px;background:#efefef;color:#999;font-size:12px}.dm-form{padding:12px;border-top:1px solid #efefef;display:flex;gap:8px}.dm-form input{height:42px;flex:1;border:1px solid #dbdbdb;border-radius:999px;padding:0 15px;outline:none;font-size:14px}.dm-form input:focus{border-color:#aaa}.dm-form button{border:0;background:transparent;color:#0095f6;font-size:14px;font-weight:800;padding:0 3px}.dm-form button:disabled{color:#b4d9f3}
+
+
+
+    /* added: personality types + Instagram interactions */
+    .type-strip{display:flex;flex-wrap:wrap;gap:8px;margin:11px 0 14px}
+    .type-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 10px 6px;border:1px dashed #d8cfbf;border-radius:999px;background:#fffdf8;color:#5f5b55;font-family:var(--cute);font-size:17px;line-height:1;box-shadow:1px 2px 0 rgba(63,51,31,.05)}
+    .type-chip:nth-child(1){transform:rotate(-1deg);background:#fff4b5}.type-chip:nth-child(2){transform:rotate(.8deg);background:#e9f4fa}.type-chip:nth-child(3){transform:rotate(-.5deg);background:#eee7ff}
+    .type-chip b{font-family:var(--body);font-size:9px;letter-spacing:.07em;color:#8b847a}
+
+    /* small private note in personality section */
+    .private-note-wrap{margin-top:13px;display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap}
+    .private-note-toggle{display:inline-flex;align-items:center;gap:6px;border:1px dashed #c9bfb2;background:#fff7fb;color:#7d5e68;border-radius:999px;padding:7px 11px 6px;font-family:var(--cute);font-size:16px;font-weight:700;line-height:1;box-shadow:1px 2px 0 rgba(86,60,63,.08);transform:rotate(-.8deg);transition:transform .18s ease,background .18s ease}
+    .private-note-toggle:hover{background:#ffeef3;transform:rotate(.3deg) translateY(-1px)}
+    .private-note-toggle:focus-visible{outline:2px solid #e78c9d;outline-offset:3px}
+    .private-note-toggle .lock-mark{font-family:var(--body);font-size:12px;transform:translateY(-.5px)}
+    .private-note{display:none;position:relative;width:min(100%,560px);padding:15px 16px 14px;background:#fff8f7;border:1px solid #f0d8d5;border-radius:2px;box-shadow:3px 4px 0 rgba(215,173,168,.22);font-size:13px;line-height:1.72;color:#4f4545;transform:rotate(-.25deg);animation:private-note-in .22s ease both}
+    .private-note.is-open{display:block}
+    .private-note:before{content:"";position:absolute;right:27px;top:-9px;width:46px;height:17px;background:rgba(255,213,222,.78);transform:rotate(4deg)}
+    .private-note h4{margin:0 0 7px;font-family:var(--cute);font-size:21px;line-height:1;letter-spacing:-.05em;color:#5b4449}
+    .private-note p{margin:0 0 7px;word-break:keep-all}
+    .private-note p:last-child{margin-bottom:0;color:#827572;font-size:12px}
+    .private-note b{font-weight:800;background:linear-gradient(transparent 58%,#ffdce3 58%,#ffdce3 92%,transparent 92%)}
+    .private-note .note-tag{display:inline-block;margin:0 4px 4px 0;padding:3px 7px 2px;border-radius:999px;background:#f3eaf5;color:#675268;font-family:var(--cute);font-size:15px;line-height:1}
+    @keyframes private-note-in{from{opacity:0;transform:rotate(-.25deg) translateY(-6px)}to{opacity:1;transform:rotate(-.25deg) translateY(0)}}
+    .ig-username-line,.ig-nav-icons{position:relative}
+    .ig-popover{position:absolute;top:42px;right:0;z-index:35;display:none;width:226px;padding:7px;background:#fff;border:1px solid #dbdbdb;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.15);text-align:left}
+    .ig-popover.open{display:block}.ig-popover button{display:block;width:100%;border:0;background:transparent;padding:10px 11px;border-radius:7px;text-align:left;color:#262626;font-size:13px}.ig-popover button:hover{background:#f6f6f6}.ig-popover p{margin:0;padding:12px 11px;color:#8e8e8e;font-size:12px;line-height:1.45}
+    .highlight-item{border:0;background:transparent;padding:0;color:inherit;font:inherit;cursor:pointer}.static-highlight{cursor:default}.highlight-item.is-disabled,.highlight-item:disabled{opacity:.42;cursor:default;filter:grayscale(.35)}.highlight-item.is-disabled .highlight-circle,.highlight-item:disabled .highlight-circle{border-style:dashed}.highlight-item:focus-visible,.plain-icon:focus-visible,.ig-btn:focus-visible,.feed-tab:focus-visible,.post-action-btn:focus-visible{outline:2px solid #0095f6;outline-offset:3px}
+    .feed-empty-state{grid-column:1/-1;min-height:260px;display:grid;place-items:center;text-align:center;color:#8e8e8e;font-size:13px;line-height:1.6;border-bottom:1px solid #efefef}.feed-empty-state strong{display:block;color:#262626;font-size:15px;margin-bottom:4px}
+    .post-action-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.post-left-actions{display:flex;align-items:center;gap:12px}.post-action-btn{display:grid;place-items:center;border:0;background:transparent;padding:0;color:#262626}.post-action-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.post-action-btn.liked{color:#ed4956}.post-action-btn.liked svg{fill:currentColor}.post-action-btn.saved svg{fill:#262626}.comment-form{display:flex;gap:7px;margin-top:11px;border-top:1px solid #efefef;padding-top:10px}.comment-form input{flex:1;min-width:0;border:0;outline:0;font-size:13px;padding:0}.comment-form button{border:0;background:transparent;color:#0095f6;font-weight:800;padding:0;font-size:13px}.comment-form button:disabled{color:#b4d9f3}
+    .story-overlay{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.74)}.story-overlay.open{display:flex}.story-card{position:relative;width:min(390px,100%);height:min(700px,calc(100vh - 40px));overflow:hidden;border-radius:12px;background:linear-gradient(145deg,#1d2733,#566a7d);color:#fff;box-shadow:0 20px 55px rgba(0,0,0,.35)}.story-card.has-image:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42),transparent 35%,rgba(0,0,0,.55));z-index:0}.story-card.has-image{background-size:cover;background-position:center}.story-progress{position:absolute;z-index:2;top:13px;left:13px;right:13px;display:flex;gap:4px}.story-progress span{height:2px;flex:1;background:rgba(255,255,255,.45)}.story-progress span.active{background:#fff}.story-close{position:absolute;z-index:4;right:14px;top:22px;border:0;background:transparent;color:#fff;font-size:29px;line-height:1}.story-copy{position:absolute;z-index:2;left:26px;right:26px;bottom:44px}.story-copy small{display:block;margin-bottom:8px;font-size:12px;opacity:.75}.story-copy h3{margin:0 0 8px;font-size:31px;letter-spacing:-.06em}.story-copy p{margin:0;font-size:14px;line-height:1.65;word-break:keep-all}.story-prev,.story-next{position:absolute;z-index:1;top:0;bottom:0;width:42%;border:0;background:transparent;color:transparent}.story-prev{left:0}.story-next{right:0}
+    .toast{position:fixed;z-index:120;left:50%;bottom:28px;transform:translate(-50%,16px);opacity:0;pointer-events:none;background:rgba(30,30,30,.9);color:#fff;padding:11px 15px;border-radius:999px;font-size:13px;transition:opacity .18s ease,transform .18s ease}.toast.show{opacity:1;transform:translate(-50%,0)}
+
+    /* background music */
+    .bgm-player{position:fixed;z-index:110;right:22px;bottom:22px;display:flex;align-items:center;gap:10px;min-width:224px;padding:9px 11px 9px 9px;border:1px solid rgba(219,209,196,.95);border-radius:15px;background:rgba(255,253,247,.92);box-shadow:0 10px 26px rgba(74,60,40,.16);backdrop-filter:blur(12px);color:#3d3a35}
+    .bgm-toggle{display:grid;place-items:center;flex:0 0 33px;width:33px;height:33px;padding:0;border:0;border-radius:50%;background:#292927;color:#fff;font-size:14px;line-height:1;transition:transform .15s ease,background .15s ease}
+    .bgm-toggle:hover{background:#57514a;transform:scale(1.05)}
+    .bgm-toggle:focus-visible,.bgm-volume:focus-visible{outline:2px solid #e78c9d;outline-offset:3px}
+    .bgm-copy{display:flex;flex-direction:column;min-width:0;gap:1px;line-height:1}
+    .bgm-copy b{font-family:var(--cute);font-size:17px;letter-spacing:-.04em;white-space:nowrap}
+    .bgm-copy span{max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:#8a837a}
+    .bgm-volume{width:66px;accent-color:#e58a99;cursor:pointer}
+    .bgm-player.is-playing .bgm-toggle{background:#e48191}
+    @media (max-width:760px){.bgm-player{right:12px;bottom:12px;min-width:202px;padding:8px 9px 8px 8px;gap:8px}.bgm-toggle{flex-basis:31px;width:31px;height:31px}.bgm-copy b{font-size:16px}.bgm-volume{width:58px}.toast{bottom:68px;max-width:calc(100vw - 32px);text-align:center}}
+
+    @media (max-width:760px){
+      .topbar-inner{height:60px;width:min(100% - 24px,1100px)}.brand{font-size:22px}.brand small{display:none}.tabs{gap:2px}.tab{font-size:12px;padding:7px 11px}.page{min-height:calc(100vh - 60px)}
+      .profile-page{padding:22px 10px 45px}.paper{padding:29px 21px 34px;border-radius:4px}.paper-head{margin-bottom:22px}.title-group h1{font-size:38px}.paper-date{font-size:20px;position:absolute;right:22px;top:28px}.profile-layout{grid-template-columns:1fr;gap:31px}.photo-zone{width:min(340px,100%);margin:0 auto}.main-photo{height:420px}.notes{gap:18px}.quick-info{gap:6px 8px}.info-card{padding:10px 7px}.info-card dd{font-size:21px}.info-card dd.compact{font-size:17px}.list-row{grid-template-columns:1fr;gap:12px}.mini-note{min-height:unset}.small-doodle{display:none}.paper-footer{margin-top:26px}.paper-footer span{display:none}
+      .ig-nav{top:60px}.ig-nav-inner{padding:0 15px}.ig-main{padding:23px 0 52px}.ig-profile{grid-template-columns:86px 1fr;gap:20px;padding:0 17px 29px}.ig-avatar-ring{width:86px;height:86px}.ig-username-line{margin-bottom:12px}.ig-username{font-size:18px}.ig-btn{padding:7px 11px;font-size:12px}.ig-stats{grid-column:1/-1;margin:1px 0 0 -103px;justify-content:space-between;gap:0;font-size:12px}.ig-bio{grid-column:1/-1;font-size:12px;line-height:1.58}.highlights{padding:0 14px 24px;gap:14px}.highlight-item{flex-basis:61px;font-size:10px}.highlight-circle{width:56px;height:56px;font-size:18px}.feed-tabs{gap:42px}.feed{gap:2px}.post-modal{height:auto;max-height:calc(100vh - 40px);grid-template-columns:1fr;overflow:auto}.post-image{aspect-ratio:1/1}.post-copy{min-height:260px}.overlay{padding:17px}.modal-close{right:0;top:-33px}.ig-word{font-size:28px}
+    }
+  
+
+    /* ===== mobile comfort patch: one post at a time + horizontal drag ===== */
+    .feed-swipe-hint{display:none}
+    @media (max-width:760px){
+      html,body{max-width:100%;overflow-x:hidden}
+      .topbar-inner{min-width:0}
+      .tabs{max-width:calc(100vw - 126px);overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;overscroll-behavior-x:contain;touch-action:pan-x}
+      .tabs::-webkit-scrollbar{display:none}
+      .tab{flex:0 0 auto;white-space:nowrap}
+      .paper,.ig-main,.ig-profile,.notes,.quick-info,.type-strip,.list-row{min-width:0}
+      .type-strip{flex-wrap:wrap}
+      .paper-footer{flex-wrap:wrap}
+
+      /* clipped rows can now be swiped or mouse-dragged without cutting content off */
+      .highlights{padding:0 14px 24px 14px;scroll-padding-inline:14px;scroll-snap-type:x proximity;overscroll-behavior-x:contain;touch-action:pan-x;-webkit-overflow-scrolling:touch;scrollbar-width:none;cursor:grab}
+      .highlights::-webkit-scrollbar{display:none}
+      .highlights.is-dragging{cursor:grabbing;user-select:none}
+      .highlight-item{scroll-snap-align:start}
+
+      /* Mobile feed: one large post per view, swipe/drag to move between posts */
+      .feed-swipe-hint{display:block;margin:8px 0 10px;padding:0 16px;color:#8e8e8e;font-size:11px;letter-spacing:.01em;text-align:center}
+      .feed{display:flex;gap:12px;overflow-x:auto;padding:0 14px 16px;scroll-padding-inline:14px;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;touch-action:pan-x;-webkit-overflow-scrolling:touch;scrollbar-width:none;cursor:grab}
+      .feed::-webkit-scrollbar{display:none}
+      .feed.is-dragging{cursor:grabbing;scroll-snap-type:none;user-select:none}
+      .feed-item{flex:0 0 calc(100vw - 28px);width:calc(100vw - 28px);max-width:520px;aspect-ratio:1/1;scroll-snap-align:center;scroll-snap-stop:always;border-radius:4px}
+      .feed-item:hover:after{display:none}
+      .feed-item:active{transform:scale(.992)}
+      .feed-empty-state{flex:0 0 calc(100vw - 28px);min-height:calc(100vw - 28px);border:1px solid #efefef;border-radius:4px}
+
+      .overlay{padding:0;align-items:flex-end}
+      .post-modal{width:100%;height:min(88dvh,760px);max-height:88dvh;border-radius:15px 15px 0 0;overflow:hidden}
+      .post-copy{min-height:0;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+      .modal-close{right:12px;top:-39px}
+      .dm{padding:0;align-items:flex-end}
+      .dm-box{width:100%;max-height:88dvh;border-radius:15px 15px 0 0;padding-bottom:env(safe-area-inset-bottom)}
+    }
+
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button class="brand" type="button" data-tab="profile">강시후 <small>paper archive</small></button>
+      <nav class="tabs" aria-label="카테고리">
+        <button class="tab active" type="button" data-tab="profile">강시후 소개</button>
+        <button class="tab" type="button" data-tab="instagram">인스타</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="page profile-page active" id="profile" aria-label="강시후 소개">
+      <article class="paper">
+        <header class="paper-head">
+          <div class="title-group">
+            <small>PERSONAL PROFILE · NOT FOR PUBLIC USE</small>
+            <h1>강시후의 <span>메모</span></h1>
+          </div>
+          <div class="paper-date"><b>26</b> / profile note</div>
+        </header>
+
+        <div class="profile-layout">
+          <div class="photo-zone">
+            <div class="main-photo" id="introPhotoBox">
+              <img id="introPhoto" alt="강시후 소개 사진" />
+            </div>
+            <div class="photo-caption">* <b>말은 짧고, 눈빛은 더 짧음.</b></div>
+          </div>
+
+          <div class="notes">
+            <div>
+              <div class="section-label">기본 정보</div>
+              <dl class="quick-info">
+                <div class="info-card"><dt>이름</dt><dd>강시후</dd></div>
+                <div class="info-card"><dt>나이 / 키</dt><dd>26세 / 186cm</dd></div>
+                <div class="info-card"><dt>소속</dt><dd class="compact">백운대학교 3학년<br>현재 휴학 중</dd></div>
+                <div class="info-card"><dt>직업</dt><dd class="compact">편의점 야간 알바<br>22:00 — 08:00</dd></div>
+              </dl>
+            </div>
+
+            <div>
+              <div class="section-label">성격</div>
+              <div class="type-strip" aria-label="강시후 성격 유형">
+                <span class="type-chip"><b>MBTI</b> ISTP-T</span>
+                <span class="type-chip"><b>ENNEAGRAM</b> 8w9</span>
+              </div>
+              <div class="bio-note">
+                겉으로는 필요한 만큼만 친절하다. 인사는 하고 계산은 빠르게 끝내지만, 그게 다다.
+                <strong>손해 보는 일</strong>과 <em>말 길어지는 상황</em>을 싫어하고, 누가 선을 넘으면 표정부터 조용히 식는다.
+                화가 날수록 목소리는 낮아지는 편. 다만 한 번 자기 사람으로 분류한 상대에게는, 귀찮다는 말과 함께 이상할 만큼 신경을 쓴다.
+              </div>
+              <div class="private-note-wrap">
+                <button class="private-note-toggle" id="privateNoteToggle" type="button" aria-expanded="false" aria-controls="privateNote">
+                  <span class="lock-mark">🔒</span> private note
+                </button>
+                <aside class="private-note" id="privateNote" aria-hidden="true">
+                  <h4>…이건 좀 사적인 얘긴데.</h4>
+                  <p><b>성적 지향:</b> 양성애자. 성별보다 상대의 태도와 관계의 주도권, 서로 지키는 선을 더 본다.</p>
+                  <p><span class="note-tag">언어 지배형</span><span class="note-tag">억제 붕괴형</span><span class="note-tag">선택적 소유 확인형</span></p>
+                  <p>말로 천천히 상대 반응을 읽고 주도권을 잡는 편. 평소엔 감정을 눌러두지만, 질투나 독점욕이 건드려지면 더 차갑게 숨기려 한다.</p>
+                  <p>※ 성인 간의 명확한 합의·경계·중단 신호가 전제된 관계에서만 드러남.</p>
+                </aside>
+              </div>
+            </div>
+
+            <div class="list-row">
+              <section class="mini-note likes">
+                <h3>좋아하는 것</h3>
+                <p>FPS · 로그라이크 · 이어폰 · 새벽 산책 · 사람 없는 시간대</p>
+              </section>
+              <section class="mini-note dislikes">
+                <h3>싫어하는 것</h3>
+                <p>말 길고 눈치 없는 사람 · 반복되는 시비 · 손해 보는 일</p>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        <div class="small-doodle">☾ “새벽이 제일 조용해서 좋음.”</div>
+        <footer class="paper-footer"><b>sihoo’s notes</b><span>※ 궁금한 건 직접 물어봐. 대답은 보장 못 함.</span></footer>
+      </article>
+    </section>
+
+    <section class="page instagram-page" id="instagram" aria-label="강시후 인스타그램">
+      <header class="ig-nav">
+        <div class="ig-nav-inner">
+          <div class="ig-word">instagram</div>
+          <div class="ig-nav-icons">
+            <button class="plain-icon" type="button" aria-label="메시지" id="openDM"><svg viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg></button>
+            <button class="plain-icon" type="button" aria-label="알림" id="notifBtn"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6Z"/></svg></button>
+            <button class="plain-icon" type="button" aria-label="프로필 맨 위로" id="igProfileBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></button>
+            <div class="ig-popover" id="notifPopover" role="status"><p>새 알림이 없습니다.</p></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="ig-main">
+        <section class="ig-profile">
+          <div class="ig-avatar-ring"><div class="ig-avatar" id="igAvatar"><img id="igAvatarImg" alt="강시후 프로필 사진" /><div class="ig-avatar-placeholder">S</div></div></div>
+          <div>
+            <div class="ig-username-line">
+              <span class="ig-username">sihoo</span>
+              <button class="ig-btn follow" id="followBtn" type="button">팔로우</button>
+              <button class="ig-btn" id="messageBtn" type="button">메시지</button>
+              <button class="ig-btn small" type="button" aria-label="더보기" id="moreBtn">⌄</button>
+              <div class="ig-popover" id="morePopover">
+                <button type="button" data-more-action="copy">프로필 링크 복사</button>
+                <button type="button" data-more-action="info">계정 정보 보기</button>
+              </div>
+            </div>
+            <div class="ig-stats"><span><b id="postCount">9</b> 게시물</span><span><b id="followerCount">184</b> 팔로워</span><span><b>90</b> 팔로우</span></div>
+            <div class="ig-bio"><b>강시후</b>휴학 중 / 야간 근무<br>22:00–08:00 ☾<br><a href="#profile" id="profileLink">sihoo</a></div>
+          </div>
+        </section>
+
+        <section class="highlights" aria-label="하이라이트">
+          <!-- Looks like a normal Instagram highlight row; intentionally has no click action until content is added. -->
+          <button class="highlight-item static-highlight" type="button" aria-label="night 하이라이트"><div class="highlight-circle"><div>☾</div></div>night</button>
+          <button class="highlight-item static-highlight" type="button" aria-label="game 하이라이트"><div class="highlight-circle"><div>🎮</div></div>game</button>
+          <button class="highlight-item static-highlight" type="button" aria-label="coffee 하이라이트"><div class="highlight-circle"><div>☕</div></div>coffee</button>
+          <button class="highlight-item static-highlight" type="button" aria-label="walk 하이라이트"><div class="highlight-circle"><div>🌃</div></div>walk</button>
+        </section>
+
+        <div class="feed-tabs">
+          <button class="feed-tab active" type="button" id="feedTabPosts" data-feed-tab="posts"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>게시물</button>
+          <button class="feed-tab" type="button" id="feedTabTagged" data-feed-tab="tagged"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="m8 16 3-3 2 2 3-4 2 5"/></svg>태그됨</button>
+        </div>
+        <p class="feed-swipe-hint" aria-hidden="true">← 옆으로 밀거나 드래그해서 게시물 보기 →</p>
+        <section class="feed" id="feed" aria-label="사진 피드"></section>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="postOverlay" role="dialog" aria-modal="true" aria-label="게시물 상세">
+    <article class="post-modal">
+      <button class="modal-close" type="button" id="closePost" aria-label="닫기">×</button>
+      <div class="post-image" id="postImage"><img id="postImageImg" alt="게시물 사진" /><div class="post-image-empty">피드 이미지를 넣으면<br>여기에 크게 보여.</div></div>
+      <div class="post-copy">
+        <header class="post-head"><div class="post-mini" id="postMini"><img id="postMiniImg" alt="" /></div><b>sihoo</b></header>
+        <div class="post-comments" id="postCaption"></div>
+        <footer class="post-actions">
+          <div class="post-action-row">
+            <div class="post-left-actions">
+              <button class="post-action-btn" type="button" id="likePostBtn" aria-label="좋아요"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.4 5.4 0 0 0-7.6 0L12 5.8l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.8a5.4 5.4 0 0 0 0-7.6Z"/></svg></button>
+              <button class="post-action-btn" type="button" id="focusCommentBtn" aria-label="댓글 달기"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.8 8.8 0 0 1-3.4-.8L3 21l1.8-5.1A8.4 8.4 0 1 1 21 11.5Z"/></svg></button>
+              <button class="post-action-btn" type="button" id="sharePostBtn" aria-label="게시물 공유"><svg viewBox="0 0 24 24"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg></button>
+            </div>
+            <button class="post-action-btn" type="button" id="savePostBtn" aria-label="저장"><svg viewBox="0 0 24 24"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1Z"/></svg></button>
+          </div>
+          <b id="likeCount">좋아요 12개</b><small>방금 전</small>
+          <form class="comment-form" id="commentForm"><input id="commentInput" maxlength="120" placeholder="댓글 달기..." autocomplete="off" /><button id="commentSendBtn" type="submit" disabled>게시</button></form>
+        </footer>
+      </div>
+    </article>
+  </div>
+
+  <div class="story-overlay" id="storyOverlay" role="dialog" aria-modal="true" aria-label="강시후 하이라이트">
+    <section class="story-card" id="storyCard">
+      <div class="story-progress" id="storyProgress"></div>
+      <button class="story-close" type="button" id="storyClose" aria-label="닫기">×</button>
+      <div class="story-copy"><small id="storyMeta">sihoo</small><h3 id="storyTitle">night</h3><p id="storyText"></p></div>
+      <button class="story-prev" type="button" id="storyPrev" aria-label="이전 하이라이트">이전</button>
+      <button class="story-next" type="button" id="storyNext" aria-label="다음 하이라이트">다음</button>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- BGM: 아래 BGM.url에 직접 만든 음원 파일의 GitHub raw 링크를 넣으면 됩니다. -->
+  <aside class="bgm-player" id="bgmPlayer" aria-label="배경음악 플레이어">
+    <button class="bgm-toggle" id="bgmToggle" type="button" aria-label="배경음악 재생" aria-pressed="false">▶</button>
+    <div class="bgm-copy"><b id="bgmTitle">BGM</b><span id="bgmStatus">ready</span></div>
+    <input class="bgm-volume" id="bgmVolume" type="range" min="0" max="100" value="45" aria-label="배경음악 볼륨" />
+  </aside>
+  <audio id="bgmAudio" loop preload="metadata"></audio>
+
+  <div class="dm" id="dm" role="dialog" aria-modal="true" aria-label="강시후에게 메시지 보내기">
+    <section class="dm-box">
+      <header class="dm-top"><div class="dm-person">sihoo<small>강시후</small></div><button class="dm-close" type="button" id="closeDM" aria-label="닫기">×</button></header>
+      <div class="dm-body" id="dmBody">
+        <div class="dm-intro"><div class="dm-big" id="dmBig"><img id="dmBigImg" alt="" /></div><b>sihoo</b><span>강시후 · Instagram</span><em>아직 주고받은 메시지가 없습니다.</em></div>
+      </div>
+      <form class="dm-form" id="dmForm"><input id="dmInput" placeholder="메시지 보내기..." maxlength="160" autocomplete="off" /><button id="sendBtn" type="submit" disabled>보내기</button></form>
+    </section>
+  </div>
+
+  <script>
+    /* ===== GitHub raw 이미지 링크는 여기만 수정하면 됩니다. ===== */
+    const ASSET = {
+      intro: "https://raw.githubusercontent.com/deokc/Sihoo/refs/heads/main/%EA%B0%95%EC%8B%9C%ED%9B%8401.png",     // 소개 페이지 큰 사진 1장
+      profile: "https://raw.githubusercontent.com/deokc/Sihoo/refs/heads/main/%ED%94%84%EB%A1%9C%ED%95%8401.png",   // 인스타 프로필 사진
+      feeds: [
+        "https://raw.githubusercontent.com/deokc/Sihoo/refs/heads/main/%EB%B4%84.webp", "https://raw.githubusercontent.com/deokc/Sihoo/refs/heads/main/%EB%B9%84.webp", "https://raw.githubusercontent.com/deokc/Sihoo/refs/heads/main/%EC%97%AC%EB%A6%84%EB%B0%A4.webp", "https://raw.githubusercontent.com/deokc/Sihoo/refs/heads/main/%EB%B9%99%EC%88%98.webp", "https://raw.githubusercontent.com/deokc/Sihoo/refs/heads/main/%EA%B0%80%EC%9D%84.webp", "https://raw.githubusercontent.com/deokc/Sihoo/refs/heads/main/%EC%B2%AB%EB%88%88.webp", "https://raw.githubusercontent.com/deokc/Sihoo/refs/heads/main/%EC%9A%B4%EB%8F%99%ED%99%94.webp", "https://raw.githubusercontent.com/deokc/Sihoo/refs/heads/main/%EC%B1%85%EC%83%81%EC%9C%84.webp", "https://raw.githubusercontent.com/deokc/Sihoo/refs/heads/main/%ED%87%B4%EA%B7%BC%EA%B8%B8.webp" // 인스타 피드 이미지 9장
+      ]
+    };
+
+    /* BGM: GitHub raw 링크 */
+    const BGM = {
+      url: "https://raw.githubusercontent.com/deokc/Sihoo/main/after%20two_03.mp3",
+      title: "after two"
+    };
+
+    const POST_TITLES = [
+      '봄바람',
+      '비 오기 직전',
+      '여름 밤',
+      '빙수는 혼자 먹는 게 편함',
+      '가을 냄새',
+      '첫눈',
+      '새 운동화',
+      '책상 위',
+      '퇴근 길'
+    ];
+
+    const CAPTIONS = [
+      '벚꽃은 예쁜데 사람은 너무 많음. 사진 찍고 바로 나옴.',
+      '비 오기 전 공기가 제일 낫다. 머리도 덜 시끄럽고.',
+      '더워서 나왔는데, 밖도 덥네. 괜히 나왔음.',
+      '딸기만 먹음. 팥은 별로.',
+      '가을 되면 괜히 이어폰 볼륨만 커짐. 이유는 없음.',
+      '눈 오면 길 미끄러워서 싫은데, 처음 온 날은 좀 봐줄 만함.',
+      '오래 신은 거 버리고 새로 샀음. 발 아프면 바로 후회할 예정.',
+      '게임 켜기 전. 정리 안 하면 더 정신없어서.',
+      '근무 끝나고 집 가는 길. 밝아진 건 여전히 별로임.'
+    ];
+
+    const DEFAULT_COMMENTS = [
+      [
+        { user:'junseo_0', text:'꽃 사진을 네가 올리네. 세상 오래 살고 볼 일이다' },
+        { user:'sihoo', text:'지나가다 찍은 거.' },
+        { user:'haerin_00', text:'사진은 잘 찍었네 ㅋㅋ' }
+      ],
+      [
+        { user:'m__do', text:'비 오기 전에 우산은 챙겼냐?' },
+        { user:'sihoo', text:'안 챙김.' },
+        { user:'m__do', text:'역시.' }
+      ],
+      [
+        { user:'hyun_2', text:'그 더운 날에 굳이 나갔냐' },
+        { user:'sihoo', text:'그러게.' },
+        { user:'arami94', text:'사진 분위기 좋다 🌙' }
+      ],
+      [
+        { user:'min_jihye', text:'팥 빼고 먹는 사람 처음 봄' },
+        { user:'sihoo', text:'그럼 지금 봤네.' },
+        { user:'gomu_gaming', text:'초코빙수 먹자고 하면 또 싫다 할 듯' }
+      ],
+      [
+        { user:'yoonie_e', text:'무슨 노래 듣는데?' },
+        { user:'sihoo', text:'말해도 모를걸.' },
+        { user:'yoonie_e', text:'물어본 내가 졌다' }
+      ],
+      [
+        { user:'so._.bin', text:'눈 좋아해?' },
+        { user:'sihoo', text:'처음만.' },
+        { user:'haerin_00', text:'대답이 너무 시후답다 ㅋㅋ' }
+      ],
+      [
+        { user:'junseo_0', text:'그거 흰색 맞지? 너한테 제일 안 어울릴 것 같은 색' },
+        { user:'sihoo', text:'검정만 신으면 재미없잖아.' },
+        { user:'junseo_0', text:'너가 재미를 논하네' }
+      ],
+      [
+        { user:'gomu_gaming', text:'키보드 또 닦았냐?' },
+        { user:'sihoo', text:'먼지 있으면 거슬림.' },
+        { user:'hyun_2', text:'의외로 깔끔한 척함' }
+      ],
+      [
+        { user:'m__do', text:'또 해 뜨는 거 보고 퇴근하네. 고생했다' },
+        { user:'sihoo', text:'고생은 무슨. 그냥 끝난 거지.' },
+        { user:'arami94', text:'집 가서 꼭 자라' }
+      ]
+    ];
+
+    const STORIES = [
+      { title:'night', text:'사람 적은 시간대가 제일 편함.', visual:8 },
+      { title:'game', text:'FPS나 로그라이크. 팀 게임은 팀원이 정상일 때만 한다.', visual:7 },
+      { title:'coffee', text:'잠 깨려고 마시는 거지, 좋아서 마시는 건 아님.', visual:3 },
+      { title:'walk', text:'퇴근하고 바로 자면 더 피곤해서. 그냥 조금 걷는다.', visual:2 }
+    ];
+    const BASE_LIKES = [12, 18, 9, 21, 14, 11, 16, 8, 13];
+
+    const $ = (s, root=document) => root.querySelector(s);
+    const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+    const resolvedProfile = () => ASSET.profile || ASSET.intro;
+    const state = {
+      currentPost: 0,
+      activeFeed: 'posts',
+      likedPosts: new Set(),
+      savedPosts: new Set(),
+      comments: Array.from({length: ASSET.feeds.length}, () => []),
+      notifications: [],
+      following: false,
+      dmStarted: false
+    };
+
+    function setImage(img, box, url){
+      if(!url) return;
+      img.src = url;
+      img.onload = () => box.classList.add('has-image');
+      img.onerror = () => box.classList.remove('has-image');
+    }
+    function initImages(){
+      setImage($('#introPhoto'), $('#introPhotoBox'), ASSET.intro);
+      setImage($('#igAvatarImg'), $('#igAvatar'), resolvedProfile());
+      setImage($('#dmBigImg'), $('#dmBig'), resolvedProfile());
+      setImage($('#postMiniImg'), $('#postMini'), resolvedProfile());
+    }
+
+    function initBgm(){
+      const audio = $('#bgmAudio');
+      const player = $('#bgmPlayer');
+      const toggle = $('#bgmToggle');
+      const volume = $('#bgmVolume');
+      const status = $('#bgmStatus');
+      const title = $('#bgmTitle');
+      if(!audio || !player || !toggle || !volume) return;
+
+      let bgmInteracted = false;
+      let autoStartArmed = true;
+
+      title.textContent = BGM.title || 'BGM';
+      audio.volume = Number(volume.value) / 100;
+      if(BGM.url) audio.src = BGM.url;
+
+      function syncPlayer(){
+        const playing = !!BGM.url && !audio.paused && !audio.ended;
+        player.classList.toggle('is-playing', playing);
+        toggle.textContent = playing ? '❚❚' : '▶';
+        toggle.setAttribute('aria-label', playing ? '배경음악 일시정지' : '배경음악 재생');
+        toggle.setAttribute('aria-pressed', String(playing));
+        status.textContent = playing ? 'playing' : (BGM.url && !bgmInteracted ? 'tap anywhere' : 'paused');
+      }
+
+      async function startOnFirstGesture(event){
+        if(!autoStartArmed || !BGM.url) return;
+        if(event.target.closest && event.target.closest('#bgmPlayer')) return;
+        try{
+          await audio.play();
+          bgmInteracted = true;
+          autoStartArmed = false;
+          document.removeEventListener('pointerdown', startOnFirstGesture, true);
+          syncPlayer();
+        }catch(error){
+          /* 브라우저가 첫 시도를 막은 경우, 다음 클릭에서 다시 시도합니다. */
+        }
+      }
+
+      document.addEventListener('pointerdown', startOnFirstGesture, true);
+
+      toggle.addEventListener('click', async () => {
+        if(!BGM.url){
+          showToast('음원 링크가 비어 있어요.');
+          return;
+        }
+        bgmInteracted = true;
+        autoStartArmed = false;
+        document.removeEventListener('pointerdown', startOnFirstGesture, true);
+        try{
+          if(audio.paused) await audio.play();
+          else audio.pause();
+        }catch(error){
+          showToast('음원을 불러오지 못했어요. 링크를 확인해 주세요.');
+        }
+        syncPlayer();
+      });
+      volume.addEventListener('input', () => {
+        audio.volume = Number(volume.value) / 100;
+        bgmInteracted = true;
+        if(!audio.muted) status.textContent = `vol. ${volume.value}`;
+      });
+      audio.addEventListener('play', syncPlayer);
+      audio.addEventListener('pause', syncPlayer);
+      audio.addEventListener('ended', syncPlayer);
+      audio.addEventListener('error', () => { status.textContent = 'unavailable'; player.classList.remove('is-playing'); toggle.textContent = '▶'; });
+      syncPlayer();
+    }
+
+    function showPage(id){
+      $$('.page').forEach(el => el.classList.toggle('active', el.id === id));
+      $$('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === id));
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+    $$('[data-tab]').forEach(btn => btn.addEventListener('click', () => showPage(btn.dataset.tab)));
+    $('#profileLink').addEventListener('click', e => { e.preventDefault(); showPage('profile'); });
+
+    let toastTimer;
+    function showToast(text){
+      const toast = $('#toast');
+      toast.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1900);
+    }
+    async function copyText(text, successText='복사했습니다.'){
+      try {
+        if(navigator.clipboard && window.isSecureContext){
+          await navigator.clipboard.writeText(text);
+        } else {
+          const area = document.createElement('textarea');
+          area.value = text; area.style.position = 'fixed'; area.style.opacity = '0';
+          document.body.appendChild(area); area.select(); document.execCommand('copy'); area.remove();
+        }
+        showToast(successText);
+      } catch (_) { showToast('복사할 수 없습니다.'); }
+    }
+
+    function renderNotifications(){
+      const pop = $('#notifPopover');
+      if(!state.notifications.length){ pop.innerHTML = '<p>새 알림이 없습니다.</p>'; return; }
+      pop.innerHTML = state.notifications.slice(0,5).map(item => `<p>${item}</p>`).join('');
+    }
+    function addNotification(text){ state.notifications.unshift(text); renderNotifications(); }
+    function closePopovers(){ $$('.ig-popover').forEach(el => el.classList.remove('open')); }
+
+    function buildFeed(){
+      const feed = $('#feed');
+      feed.innerHTML = '';
+      if(state.activeFeed === 'tagged'){
+        feed.innerHTML = '<div class="feed-empty-state"><div><strong>태그된 사진 없음</strong>아직 태그된 게시물이 없습니다.</div></div>';
+        return;
+      }
+      ASSET.feeds.forEach((url, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'feed-item';
+        btn.type = 'button';
+        btn.setAttribute('aria-label', `게시물 ${index+1} 열기`);
+        const fallback = index === 0 ? '' : `<div class="feed-empty">${POST_TITLES[index] || `post ${String(index+1).padStart(2,'0')}`}<br><small>이미지 링크</small></div>`;
+        btn.innerHTML = `<img alt="강시후 인스타 피드 ${index+1}">${fallback}`;
+        const img = $('img', btn);
+        if(url){
+          img.src = url;
+          img.onload = () => btn.classList.add('has-image');
+        }
+        btn.addEventListener('click', (event) => {
+          if(feed.dataset.justDragged === 'true'){
+            event.preventDefault();
+            return;
+          }
+          openPost(index);
+        });
+        feed.appendChild(btn);
+      });
+      $('#postCount').textContent = ASSET.feeds.length;
+    }
+    $$('[data-feed-tab]').forEach(btn => btn.addEventListener('click', () => {
+      state.activeFeed = btn.dataset.feedTab;
+      $$('[data-feed-tab]').forEach(tab => tab.classList.toggle('active', tab === btn));
+      buildFeed();
+    }));
+
+    const overlay = $('#postOverlay');
+    function postLikes(index){ return BASE_LIKES[index] + (state.likedPosts.has(index) ? 1 : 0); }
+    function renderPostDetails(){
+      const index = state.currentPost;
+      const defaultComments = (DEFAULT_COMMENTS[index] || [])
+        .map(comment => `<p><b>${escapeHtml(comment.user)}</b> ${escapeHtml(comment.text)}</p>`)
+        .join('');
+      const extraComments = state.comments[index].map(comment => `<p><b>you</b> ${escapeHtml(comment)}</p>`).join('');
+      $('#postCaption').innerHTML = `<p><b>sihoo</b> ${CAPTIONS[index] || '…'}</p>${defaultComments}${extraComments}`;
+      $('#likeCount').textContent = `좋아요 ${postLikes(index)}개`;
+      $('#likePostBtn').classList.toggle('liked', state.likedPosts.has(index));
+      $('#savePostBtn').classList.toggle('saved', state.savedPosts.has(index));
+      $('#commentInput').value = '';
+      $('#commentSendBtn').disabled = true;
+    }
+    function openPost(index){
+      state.currentPost = index;
+      const url = ASSET.feeds[index] || '';
+      const imageBox = $('#postImage');
+      const image = $('#postImageImg');
+      imageBox.classList.remove('has-image');
+      image.removeAttribute('src');
+      if(url){ image.src = url; image.onload = () => imageBox.classList.add('has-image'); }
+      renderPostDetails();
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closePost(){ overlay.classList.remove('open'); document.body.style.overflow = ''; }
+    $('#closePost').addEventListener('click', closePost);
+    overlay.addEventListener('click', e => { if(e.target === overlay) closePost(); });
+    $('#likePostBtn').addEventListener('click', () => {
+      const i = state.currentPost;
+      if(state.likedPosts.has(i)) { state.likedPosts.delete(i); showToast('좋아요를 취소했습니다.'); }
+      else { state.likedPosts.add(i); addNotification(`게시물 ${String(i+1).padStart(2,'0')}에 좋아요를 눌렀습니다.`); showToast('좋아요를 눌렀습니다.'); }
+      renderPostDetails();
+    });
+    $('#savePostBtn').addEventListener('click', () => {
+      const i = state.currentPost;
+      if(state.savedPosts.has(i)) { state.savedPosts.delete(i); showToast('저장을 취소했습니다.'); }
+      else { state.savedPosts.add(i); showToast('저장했습니다.'); }
+      renderPostDetails();
+    });
+    $('#focusCommentBtn').addEventListener('click', () => $('#commentInput').focus());
+    $('#sharePostBtn').addEventListener('click', () => copyText(`${location.href}#post-${state.currentPost+1}`, '게시물 링크를 복사했습니다.'));
+    $('#commentInput').addEventListener('input', e => $('#commentSendBtn').disabled = !e.target.value.trim());
+    $('#commentForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const comment = $('#commentInput').value.trim();
+      if(!comment) return;
+      state.comments[state.currentPost].push(comment);
+      renderPostDetails();
+      showToast('댓글을 게시했습니다.');
+    });
+
+    const dm = $('#dm');
+    function openDM(){ closePopovers(); dm.classList.add('open'); document.body.style.overflow='hidden'; setTimeout(()=>$('#dmInput').focus(),50); }
+    function closeDM(){ dm.classList.remove('open'); document.body.style.overflow=''; }
+    $('#openDM').addEventListener('click', openDM);
+    $('#messageBtn').addEventListener('click', openDM);
+    $('#closeDM').addEventListener('click', closeDM);
+    dm.addEventListener('click', e => { if(e.target === dm) closeDM(); });
+    const dmInput = $('#dmInput'), sendBtn = $('#sendBtn'), dmBody = $('#dmBody');
+    dmInput.addEventListener('input', () => sendBtn.disabled = !dmInput.value.trim());
+    function appendBubble(text, who){
+      const div = document.createElement('div'); div.className = `bubble ${who}`; div.textContent = text;
+      dmBody.appendChild(div); dmBody.scrollTop = dmBody.scrollHeight; return div;
+    }
+    function replyFor(text){
+      const t = text.replace(/\s/g,'');
+      if(!state.dmStarted){
+        state.dmStarted = true;
+        return '누구.';
+      }
+      if(/미안|사과/.test(t)) return '…그래. 다음부터는 사람 피곤하게 하지 마.';
+      if(/뭐해|뭐함|자냐/.test(t)) return '일하는 중. 보면 모르냐.';
+      if(/보고싶|보고싶어/.test(t)) return '갑자기 왜. 술 마셨냐?';
+      if(/게임|롤|발로|fps/.test(t)) return '끝나고 한 판은 가능. 대신 트롤하면 바로 나감.';
+      if(/힘들|피곤|아파/.test(t)) return '병원은 갔고? 안 갔으면 가. 괜히 더 귀찮게 만들지 말고.';
+      if(/좋아|호감|사귀/.test(t)) return '그걸 여기서 물어봐? …나중에 얘기해.';
+      if(/왜답장|읽씹/.test(t)) return '일하면 답장 늦을 수도 있지. 그걸 꼭 물어봐야 돼?';
+      const options = ['그래서.', '알았어.', '지금 말해야 되는 거냐.', '응. 듣고는 있음.', '…뭐, 그럴 수 있지.', '귀찮게 하네. 계속 말해봐.'];
+      return options[Math.floor(Math.random()*options.length)];
+    }
+    $('#dmForm').addEventListener('submit', e => {
+      e.preventDefault(); const text = dmInput.value.trim(); if(!text) return;
+      appendBubble(text,'me'); dmInput.value=''; sendBtn.disabled=true;
+      const typing = document.createElement('div'); typing.className='typing'; typing.textContent='sihoo 입력 중…'; dmBody.appendChild(typing); dmBody.scrollTop=dmBody.scrollHeight;
+      const delay = 520 + Math.min(1000, text.length*28);
+      setTimeout(()=>{ typing.remove(); appendBubble(replyFor(text),'sihoo'); }, delay);
+    });
+
+    let currentStory = 0;
+    const storyOverlay = $('#storyOverlay');
+    function renderStory(){
+      const story = STORIES[currentStory];
+      const card = $('#storyCard');
+      const visual = ASSET.feeds[story.visual] || ASSET.intro || '';
+      card.classList.toggle('has-image', !!visual);
+      card.style.backgroundImage = visual ? `url("${visual}")` : '';
+      $('#storyTitle').textContent = story.title;
+      $('#storyText').textContent = story.text;
+      $('#storyMeta').textContent = `sihoo · ${currentStory+1}/${STORIES.length}`;
+      $('#storyProgress').innerHTML = STORIES.map((_, i) => `<span class="${i <= currentStory ? 'active' : ''}"></span>`).join('');
+    }
+    function openStory(index){ currentStory = index; renderStory(); storyOverlay.classList.add('open'); document.body.style.overflow='hidden'; }
+    function closeStory(){ storyOverlay.classList.remove('open'); document.body.style.overflow=''; }
+    $$('[data-story]').forEach(btn => btn.addEventListener('click', () => openStory(Number(btn.dataset.story))));
+    $('#storyClose').addEventListener('click', closeStory);
+    $('#storyPrev').addEventListener('click', () => { currentStory = (currentStory - 1 + STORIES.length) % STORIES.length; renderStory(); });
+    $('#storyNext').addEventListener('click', () => { currentStory = (currentStory + 1) % STORIES.length; renderStory(); });
+    storyOverlay.addEventListener('click', e => { if(e.target === storyOverlay) closeStory(); });
+
+    $('#followBtn').addEventListener('click', function(){
+      state.following = !state.following;
+      this.classList.toggle('follow', !state.following);
+      this.textContent = state.following ? '팔로잉' : '팔로우';
+      const followerCount = $('#followerCount');
+      const base = 184;
+      followerCount.textContent = String(base + (state.following ? 1 : 0));
+      addNotification(state.following ? 'sihoo님을 팔로우했습니다.' : '팔로우를 취소했습니다.');
+      showToast(state.following ? '팔로우했습니다.' : '팔로우를 취소했습니다.');
+    });
+    $('#notifBtn').addEventListener('click', e => { e.stopPropagation(); $('#notifPopover').classList.toggle('open'); $('#morePopover').classList.remove('open'); });
+    $('#igProfileBtn').addEventListener('click', () => { $('.ig-profile').scrollIntoView({behavior:'smooth', block:'start'}); showToast('sihoo 프로필'); });
+    $('#moreBtn').addEventListener('click', e => { e.stopPropagation(); $('#morePopover').classList.toggle('open'); $('#notifPopover').classList.remove('open'); });
+    $$('[data-more-action]').forEach(btn => btn.addEventListener('click', () => {
+      if(btn.dataset.moreAction === 'copy') copyText(`${location.href}#sihoo`, '프로필 링크를 복사했습니다.');
+      if(btn.dataset.moreAction === 'info') showToast('휴학 중 · 편의점 야간 근무 22:00–08:00');
+      closePopovers();
+    }));
+
+    function escapeHtml(text){ return text.replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch])); }
+    document.addEventListener('click', e => { if(!e.target.closest('.ig-popover') && !e.target.closest('#notifBtn') && !e.target.closest('#moreBtn')) closePopovers(); });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closePost(); closeDM(); closeStory(); closePopovers(); } });
+
+    const privateNoteToggle = $('#privateNoteToggle');
+    const privateNote = $('#privateNote');
+    if(privateNoteToggle && privateNote){
+      privateNoteToggle.addEventListener('click', () => {
+        const isOpen = privateNote.classList.toggle('is-open');
+        privateNoteToggle.setAttribute('aria-expanded', String(isOpen));
+        privateNote.setAttribute('aria-hidden', String(!isOpen));
+        privateNoteToggle.innerHTML = isOpen
+          ? '<span class="lock-mark">🔓</span> private note 접기'
+          : '<span class="lock-mark">🔒</span> private note';
+      });
+    }
+
+
+
+    // Horizontal rows remain usable on small screens: touch swipe is native,
+    // and mouse dragging also works in narrow desktop/mobile emulation views.
+    function enableMouseDragScroll(element){
+      if(!element || element.dataset.dragScrollBound === 'true') return;
+      element.dataset.dragScrollBound = 'true';
+      let active = false;
+      let startX = 0;
+      let initialScroll = 0;
+      let moved = false;
+      let resetTimer;
+
+      element.addEventListener('pointerdown', event => {
+        if(!window.matchMedia('(max-width: 760px)').matches || event.pointerType !== 'mouse') return;
+        active = true;
+        moved = false;
+        startX = event.clientX;
+        initialScroll = element.scrollLeft;
+        element.classList.add('is-dragging');
+        element.setPointerCapture?.(event.pointerId);
+      });
+      element.addEventListener('pointermove', event => {
+        if(!active) return;
+        const delta = event.clientX - startX;
+        if(Math.abs(delta) > 5){
+          moved = true;
+          element.scrollLeft = initialScroll - delta;
+        }
+      });
+      const finish = () => {
+        if(!active) return;
+        active = false;
+        element.classList.remove('is-dragging');
+        if(moved){
+          element.dataset.justDragged = 'true';
+          clearTimeout(resetTimer);
+          resetTimer = setTimeout(() => { delete element.dataset.justDragged; }, 120);
+        }
+      };
+      element.addEventListener('pointerup', finish);
+      element.addEventListener('pointercancel', finish);
+      element.addEventListener('lostpointercapture', finish);
+    }
+
+    enableMouseDragScroll($('#feed'));
+    enableMouseDragScroll($('.highlights'));
+
+    initImages(); initBgm(); buildFeed(); renderNotifications();
+  </script>
+</body>
+</html>
