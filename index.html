@@ -170,16 +170,18 @@
     .toast{position:fixed;z-index:120;left:50%;bottom:28px;transform:translate(-50%,16px);opacity:0;pointer-events:none;background:rgba(30,30,30,.9);color:#fff;padding:11px 15px;border-radius:999px;font-size:13px;transition:opacity .18s ease,transform .18s ease}.toast.show{opacity:1;transform:translate(-50%,0)}
 
     /* background music */
-    .bgm-player{position:fixed;z-index:110;right:22px;bottom:22px;display:flex;align-items:center;gap:10px;min-width:224px;padding:9px 11px 9px 9px;border:1px solid rgba(219,209,196,.95);border-radius:15px;background:rgba(255,253,247,.92);box-shadow:0 10px 26px rgba(74,60,40,.16);backdrop-filter:blur(12px);color:#3d3a35}
+    .bgm-player{position:fixed;z-index:110;right:22px;bottom:22px;display:flex;align-items:center;gap:8px;min-width:282px;padding:9px 11px 9px 9px;border:1px solid rgba(219,209,196,.95);border-radius:15px;background:rgba(255,253,247,.92);box-shadow:0 10px 26px rgba(74,60,40,.16);backdrop-filter:blur(12px);color:#3d3a35}
     .bgm-toggle{display:grid;place-items:center;flex:0 0 33px;width:33px;height:33px;padding:0;border:0;border-radius:50%;background:#292927;color:#fff;font-size:14px;line-height:1;transition:transform .15s ease,background .15s ease}
     .bgm-toggle:hover{background:#57514a;transform:scale(1.05)}
-    .bgm-toggle:focus-visible,.bgm-volume:focus-visible{outline:2px solid #e78c9d;outline-offset:3px}
+    .bgm-track-btn{display:grid;place-items:center;flex:0 0 22px;width:22px;height:25px;padding:0;border:0;background:transparent;color:#6c665f;font-size:21px;line-height:1;border-radius:7px;transition:background .15s ease,color .15s ease}
+    .bgm-track-btn:hover{background:#f0eae0;color:#292927}
+    .bgm-toggle:focus-visible,.bgm-track-btn:focus-visible,.bgm-volume:focus-visible{outline:2px solid #e78c9d;outline-offset:3px}
     .bgm-copy{display:flex;flex-direction:column;min-width:0;gap:1px;line-height:1}
     .bgm-copy b{font-family:var(--cute);font-size:17px;letter-spacing:-.04em;white-space:nowrap}
-    .bgm-copy span{max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:#8a837a}
-    .bgm-volume{width:66px;accent-color:#e58a99;cursor:pointer}
+    .bgm-copy span{max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:#8a837a}
+    .bgm-volume{width:60px;accent-color:#e58a99;cursor:pointer}
     .bgm-player.is-playing .bgm-toggle{background:#e48191}
-    @media (max-width:760px){.bgm-player{right:12px;bottom:12px;min-width:202px;padding:8px 9px 8px 8px;gap:8px}.bgm-toggle{flex-basis:31px;width:31px;height:31px}.bgm-copy b{font-size:16px}.bgm-volume{width:58px}.toast{bottom:68px;max-width:calc(100vw - 32px);text-align:center}}
+    @media (max-width:760px){.bgm-player{right:12px;bottom:12px;min-width:252px;padding:8px 9px 8px 8px;gap:6px}.bgm-toggle{flex-basis:31px;width:31px;height:31px}.bgm-track-btn{flex-basis:20px;width:20px;font-size:19px}.bgm-copy b{font-size:16px}.bgm-copy span{max-width:70px}.bgm-volume{width:52px}.toast{bottom:68px;max-width:calc(100vw - 32px);text-align:center}}
 
     @media (max-width:760px){
       .topbar-inner{height:60px;width:min(100% - 24px,1100px)}.brand{font-size:22px}.brand small{display:none}.tabs{gap:2px}.tab{font-size:12px;padding:7px 11px}.page{min-height:calc(100vh - 60px)}
@@ -394,13 +396,15 @@
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <!-- BGM: 아래 BGM.url에 직접 만든 음원 파일의 GitHub raw 링크를 넣으면 됩니다. -->
+  <!-- BGM playlist: GitHub raw 음원 링크를 아래 BGM_PLAYLIST에 추가하면 됩니다. -->
   <aside class="bgm-player" id="bgmPlayer" aria-label="배경음악 플레이어">
     <button class="bgm-toggle" id="bgmToggle" type="button" aria-label="배경음악 재생" aria-pressed="false">▶</button>
     <div class="bgm-copy"><b id="bgmTitle">BGM</b><span id="bgmStatus">ready</span></div>
+    <button class="bgm-track-btn" id="bgmPrev" type="button" aria-label="이전 곡">‹</button>
+    <button class="bgm-track-btn" id="bgmNext" type="button" aria-label="다음 곡">›</button>
     <input class="bgm-volume" id="bgmVolume" type="range" min="0" max="100" value="45" aria-label="배경음악 볼륨" />
   </aside>
-  <audio id="bgmAudio" loop preload="metadata"></audio>
+  <audio id="bgmAudio" preload="metadata"></audio>
 
   <div class="dm" id="dm" role="dialog" aria-modal="true" aria-label="강시후에게 메시지 보내기">
     <section class="dm-box">
@@ -422,11 +426,17 @@
       ]
     };
 
-    /* BGM: GitHub raw 링크 */
-    const BGM = {
-      url: "https://raw.githubusercontent.com/deokc/Sihoo/main/after%20two_03.mp3",
-      title: "after two"
-    };
+    /* BGM playlist: GitHub raw 링크 */
+    const BGM_PLAYLIST = [
+      {
+        url: "https://raw.githubusercontent.com/deokc/Sihoo/main/after%20two_03.mp3",
+        title: "after two (Female)"
+      },
+      {
+        url: "https://raw.githubusercontent.com/deokc/Sihoo/main/after%20two_01.mp3",
+        title: "after two (Male)"
+      }
+    ];
 
     const POST_TITLES = [
       '봄바람',
@@ -539,30 +549,53 @@
       const audio = $('#bgmAudio');
       const player = $('#bgmPlayer');
       const toggle = $('#bgmToggle');
+      const prev = $('#bgmPrev');
+      const next = $('#bgmNext');
       const volume = $('#bgmVolume');
       const status = $('#bgmStatus');
       const title = $('#bgmTitle');
-      if(!audio || !player || !toggle || !volume) return;
+      const tracks = BGM_PLAYLIST.filter(track => track && track.url);
+      if(!audio || !player || !toggle || !prev || !next || !volume) return;
 
+      let trackIndex = 0;
       let bgmInteracted = false;
       let autoStartArmed = true;
 
-      title.textContent = BGM.title || 'BGM';
       audio.volume = Number(volume.value) / 100;
-      if(BGM.url) audio.src = BGM.url;
 
+      function currentTrack(){
+        return tracks[trackIndex] || null;
+      }
+      function updateTrackText(){
+        const track = currentTrack();
+        title.textContent = track ? track.title : 'BGM';
+      }
+      function loadTrack(index){
+        if(!tracks.length) return;
+        trackIndex = (index + tracks.length) % tracks.length;
+        const track = currentTrack();
+        if(audio.src !== track.url){
+          audio.src = track.url;
+          audio.load();
+        }
+        updateTrackText();
+      }
       function syncPlayer(){
-        const playing = !!BGM.url && !audio.paused && !audio.ended;
+        const playing = !!currentTrack() && !audio.paused && !audio.ended;
         player.classList.toggle('is-playing', playing);
         toggle.textContent = playing ? '❚❚' : '▶';
         toggle.setAttribute('aria-label', playing ? '배경음악 일시정지' : '배경음악 재생');
         toggle.setAttribute('aria-pressed', String(playing));
-        status.textContent = playing ? 'playing' : (BGM.url && !bgmInteracted ? 'tap anywhere' : 'paused');
+        const position = tracks.length ? `${trackIndex + 1}/${tracks.length}` : '0/0';
+        status.textContent = playing
+          ? `${position} · playing`
+          : (currentTrack() && !bgmInteracted ? `${position} · tap anywhere` : `${position} · paused`);
       }
-
-      async function startOnFirstGesture(event){
-        if(!autoStartArmed || !BGM.url) return;
-        if(event.target.closest && event.target.closest('#bgmPlayer')) return;
+      async function playCurrent(){
+        if(!currentTrack()){
+          showToast('음원 링크가 비어 있어요.');
+          return;
+        }
         try{
           await audio.play();
           bgmInteracted = true;
@@ -570,28 +603,35 @@
           document.removeEventListener('pointerdown', startOnFirstGesture, true);
           syncPlayer();
         }catch(error){
-          /* 브라우저가 첫 시도를 막은 경우, 다음 클릭에서 다시 시도합니다. */
+          showToast('음원을 불러오지 못했어요. 링크를 확인해 주세요.');
+          syncPlayer();
         }
       }
-
-      document.addEventListener('pointerdown', startOnFirstGesture, true);
-
-      toggle.addEventListener('click', async () => {
-        if(!BGM.url){
-          showToast('음원 링크가 비어 있어요.');
-          return;
-        }
+      async function switchTrack(direction, shouldPlay){
+        if(!tracks.length){ showToast('음원 링크가 비어 있어요.'); return; }
+        const wasPlaying = !audio.paused && !audio.ended;
+        loadTrack(trackIndex + direction);
         bgmInteracted = true;
         autoStartArmed = false;
         document.removeEventListener('pointerdown', startOnFirstGesture, true);
-        try{
-          if(audio.paused) await audio.play();
-          else audio.pause();
-        }catch(error){
-          showToast('음원을 불러오지 못했어요. 링크를 확인해 주세요.');
-        }
-        syncPlayer();
+        if(shouldPlay || wasPlaying) await playCurrent();
+        else syncPlayer();
+      }
+      async function startOnFirstGesture(event){
+        if(!autoStartArmed || !currentTrack()) return;
+        if(event.target.closest && event.target.closest('#bgmPlayer')) return;
+        await playCurrent();
+      }
+
+      loadTrack(0);
+      document.addEventListener('pointerdown', startOnFirstGesture, true);
+
+      toggle.addEventListener('click', async () => {
+        if(audio.paused) await playCurrent();
+        else { audio.pause(); syncPlayer(); }
       });
+      prev.addEventListener('click', () => switchTrack(-1, true));
+      next.addEventListener('click', () => switchTrack(1, true));
       volume.addEventListener('input', () => {
         audio.volume = Number(volume.value) / 100;
         bgmInteracted = true;
@@ -599,8 +639,12 @@
       });
       audio.addEventListener('play', syncPlayer);
       audio.addEventListener('pause', syncPlayer);
-      audio.addEventListener('ended', syncPlayer);
-      audio.addEventListener('error', () => { status.textContent = 'unavailable'; player.classList.remove('is-playing'); toggle.textContent = '▶'; });
+      audio.addEventListener('ended', () => switchTrack(1, true));
+      audio.addEventListener('error', () => {
+        status.textContent = 'unavailable';
+        player.classList.remove('is-playing');
+        toggle.textContent = '▶';
+      });
       syncPlayer();
     }
 
