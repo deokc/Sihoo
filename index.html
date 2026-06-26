@@ -130,7 +130,7 @@
     /* post modal */
     .overlay{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:26px;background:rgba(0,0,0,.62)}
     .overlay.open{display:flex}.post-modal{position:relative;width:min(1120px,100%);height:min(82vh,720px);background:#fff;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.82fr);box-shadow:0 16px 50px rgba(0,0,0,.28)}
-    .modal-close{position:absolute;right:-3px;top:-39px;border:0;background:transparent;color:#fff;font-size:31px;line-height:1;padding:0}.post-image{position:relative;background:#111;min-height:0}.post-image img{opacity:0}.post-image.has-image img{opacity:1}.post-image-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#eee;background:linear-gradient(145deg,#2a2d34,#525863);font-family:var(--cute);font-size:23px}.post-image.has-image .post-image-empty{display:none}.post-copy{display:flex;flex-direction:column;min-height:0}.post-head{height:62px;padding:12px 15px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--ig-line);font-size:14px}.post-mini{width:32px;height:32px;border-radius:50%;overflow:hidden;background:#ddd}.post-mini img{opacity:0}.post-mini.has-image img{opacity:1}.post-comments{flex:1;padding:16px;overflow:auto;font-size:14px;line-height:1.5}.post-comments p{margin:0}.post-comments b{margin-right:5px}.post-actions{border-top:1px solid var(--ig-line);padding:12px 15px;font-size:13px}.post-actions .heart-row{font-size:22px;margin-bottom:7px;letter-spacing:4px}.post-actions b{display:block;margin-bottom:7px}.post-actions small{color:#8e8e8e;font-size:10px;letter-spacing:.04em}
+    .modal-close{position:absolute;right:-3px;top:-39px;border:0;background:transparent;color:#fff;font-size:31px;line-height:1;padding:0}.post-image{position:relative;background:#111;min-height:0}.post-image img{opacity:0}.post-image.has-image img{opacity:1}.post-image-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:#eee;background:linear-gradient(145deg,#2a2d34,#525863);font-family:var(--cute);font-size:23px}.post-image.has-image .post-image-empty{display:none}.post-copy{display:flex;flex-direction:column;min-height:0}.post-detail-scroll{display:flex;flex:1;flex-direction:column;min-height:0}.post-head{height:62px;padding:12px 15px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--ig-line);font-size:14px}.post-mini{width:32px;height:32px;border-radius:50%;overflow:hidden;background:#ddd}.post-mini img{opacity:0}.post-mini.has-image img{opacity:1}.post-comments{flex:1;padding:16px;overflow:auto;font-size:14px;line-height:1.5}.post-comments p{margin:0}.post-comments b{margin-right:5px}.post-actions{border-top:1px solid var(--ig-line);padding:12px 15px;font-size:13px}.post-actions .heart-row{font-size:22px;margin-bottom:7px;letter-spacing:4px}.post-actions b{display:block;margin-bottom:7px}.post-actions small{color:#8e8e8e;font-size:10px;letter-spacing:.04em}
 
     /* DM */
     .dm{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.48)}
@@ -224,6 +224,66 @@
       .modal-close{right:12px;top:-39px}
       .dm{padding:0;align-items:flex-end}
       .dm-box{width:100%;max-height:88dvh;border-radius:15px 15px 0 0;padding-bottom:env(safe-area-inset-bottom)}
+    }
+
+  
+
+    /* ===== mobile post comments: keep the photo unchanged; scroll/drag the full lower panel ===== */
+    @media (max-width:760px){
+      /* Keep the existing image size. The lower text area uses the remaining modal height. */
+      .post-modal{
+        width:100%;
+        height:min(88dvh,760px);
+        max-height:88dvh;
+        display:grid;
+        grid-template-columns:1fr;
+        grid-template-rows:auto minmax(0,1fr);
+        overflow:hidden;
+        border-radius:15px 15px 0 0;
+      }
+      .post-image{
+        width:100%;
+        aspect-ratio:1/1;
+        min-height:0;
+      }
+      .post-copy{
+        min-height:0;
+        overflow:hidden;
+        padding-bottom:0;
+      }
+      /* The entire lower panel scrolls together: caption, comments, buttons, and the composer. */
+      .post-detail-scroll{
+        flex:1;
+        min-height:0;
+        overflow-y:auto;
+        overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch;
+        touch-action:pan-y;
+        cursor:grab;
+        padding-bottom:env(safe-area-inset-bottom);
+      }
+      .post-detail-scroll.is-dragging{
+        cursor:grabbing;
+        user-select:none;
+      }
+      .post-comments{
+        flex:0 0 auto;
+        min-height:0;
+        overflow:visible;
+        padding-bottom:14px;
+      }
+      .post-actions{
+        flex:0 0 auto;
+        padding-bottom:calc(12px + env(safe-area-inset-bottom));
+      }
+      /* The floating music player stays out of the way while a mobile post or DM is open. */
+      body.post-open .bgm-player,
+      body.dm-open .bgm-player{
+        opacity:0;
+        pointer-events:none;
+        transform:translateY(18px);
+        transition:opacity .16s ease,transform .16s ease;
+      }
     }
 
   </style>
@@ -368,6 +428,7 @@
       <div class="post-image" id="postImage"><img id="postImageImg" alt="게시물 사진" /><div class="post-image-empty">피드 이미지를 넣으면<br>여기에 크게 보여.</div></div>
       <div class="post-copy">
         <header class="post-head"><div class="post-mini" id="postMini"><img id="postMiniImg" alt="" /></div><b>sihoo</b></header>
+        <div class="post-detail-scroll" id="postDetailScroll">
         <div class="post-comments" id="postCaption"></div>
         <footer class="post-actions">
           <div class="post-action-row">
@@ -381,6 +442,7 @@
           <b id="likeCount">좋아요 12개</b><small>방금 전</small>
           <form class="comment-form" id="commentForm"><input id="commentInput" maxlength="120" placeholder="댓글 달기..." autocomplete="off" /><button id="commentSendBtn" type="submit" disabled>게시</button></form>
         </footer>
+        </div>
       </div>
     </article>
   </div>
@@ -745,10 +807,17 @@
       image.removeAttribute('src');
       if(url){ image.src = url; image.onload = () => imageBox.classList.add('has-image'); }
       renderPostDetails();
+      const detailScroll = $('#postDetailScroll');
+      if(detailScroll) detailScroll.scrollTop = 0;
       overlay.classList.add('open');
+      document.body.classList.add('post-open');
       document.body.style.overflow = 'hidden';
     }
-    function closePost(){ overlay.classList.remove('open'); document.body.style.overflow = ''; }
+    function closePost(){
+      overlay.classList.remove('open');
+      document.body.classList.remove('post-open');
+      document.body.style.overflow = '';
+    }
     $('#closePost').addEventListener('click', closePost);
     overlay.addEventListener('click', e => { if(e.target === overlay) closePost(); });
     $('#likePostBtn').addEventListener('click', () => {
@@ -763,9 +832,24 @@
       else { state.savedPosts.add(i); showToast('저장했습니다.'); }
       renderPostDetails();
     });
-    $('#focusCommentBtn').addEventListener('click', () => $('#commentInput').focus());
+    function revealCommentComposer(){
+      const panel = $('#postDetailScroll');
+      const input = $('#commentInput');
+      if(!panel || !input) return;
+      const reveal = () => {
+        const target = input.offsetTop - panel.offsetTop - Math.max(10, (panel.clientHeight - input.offsetHeight) / 2);
+        panel.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+      };
+      requestAnimationFrame(reveal);
+      setTimeout(reveal, 160);
+    }
+    $('#focusCommentBtn').addEventListener('click', () => {
+      $('#commentInput').focus();
+      revealCommentComposer();
+    });
     $('#sharePostBtn').addEventListener('click', () => copyText(`${location.href}#post-${state.currentPost+1}`, '게시물 링크를 복사했습니다.'));
     $('#commentInput').addEventListener('input', e => $('#commentSendBtn').disabled = !e.target.value.trim());
+    $('#commentInput').addEventListener('focus', revealCommentComposer);
     $('#commentForm').addEventListener('submit', e => {
       e.preventDefault();
       const comment = $('#commentInput').value.trim();
@@ -776,8 +860,8 @@
     });
 
     const dm = $('#dm');
-    function openDM(){ closePopovers(); dm.classList.add('open'); document.body.style.overflow='hidden'; setTimeout(()=>$('#dmInput').focus(),50); }
-    function closeDM(){ dm.classList.remove('open'); document.body.style.overflow=''; }
+    function openDM(){ closePopovers(); dm.classList.add('open'); document.body.classList.add('dm-open'); document.body.style.overflow='hidden'; setTimeout(()=>$('#dmInput').focus(),50); }
+    function closeDM(){ dm.classList.remove('open'); document.body.classList.remove('dm-open'); document.body.style.overflow=''; }
     $('#openDM').addEventListener('click', openDM);
     $('#messageBtn').addEventListener('click', openDM);
     $('#closeDM').addEventListener('click', closeDM);
@@ -916,6 +1000,39 @@
 
     enableMouseDragScroll($('#feed'));
     enableMouseDragScroll($('.highlights'));
+
+    // In a mobile-sized viewport, the comment text itself can be dragged vertically.
+    // Touch screens retain native swipe scrolling; this adds the same behavior for mouse dragging.
+    function enableVerticalDragScroll(element){
+      if(!element || element.dataset.verticalDragBound === 'true') return;
+      element.dataset.verticalDragBound = 'true';
+      let active = false;
+      let startY = 0;
+      let initialScroll = 0;
+
+      element.addEventListener('pointerdown', event => {
+        if(!window.matchMedia('(max-width: 760px)').matches || event.pointerType !== 'mouse' || event.button !== 0) return;
+        active = true;
+        startY = event.clientY;
+        initialScroll = element.scrollTop;
+        element.classList.add('is-dragging');
+        element.setPointerCapture?.(event.pointerId);
+      });
+      element.addEventListener('pointermove', event => {
+        if(!active) return;
+        element.scrollTop = initialScroll - (event.clientY - startY);
+      });
+      const finish = () => {
+        if(!active) return;
+        active = false;
+        element.classList.remove('is-dragging');
+      };
+      element.addEventListener('pointerup', finish);
+      element.addEventListener('pointercancel', finish);
+      element.addEventListener('lostpointercapture', finish);
+    }
+
+    enableVerticalDragScroll($('#postDetailScroll'));
 
     initImages(); initBgm(); buildFeed(); renderNotifications();
   </script>
