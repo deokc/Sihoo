@@ -400,7 +400,7 @@
               </div>
             </div>
             <div class="ig-stats"><span><b id="postCount">9</b> 게시물</span><span><b id="followerCount">184</b> 팔로워</span><span><b>90</b> 팔로우</span></div>
-            <div class="ig-bio"><b>강시후</b>휴학 중 / 야간 근무<br>22:00–08:00 ☾<br><a href="#profile" id="profileLink">sihoo</a></div>
+            <div class="ig-bio"><b>강시후</b>휴학 중 / 야간 근무<br>22:00–08:00 ☾<br><a href="#profile" id="profileLink"></a></div>
           </div>
         </section>
 
@@ -425,7 +425,7 @@
   <div class="overlay" id="postOverlay" role="dialog" aria-modal="true" aria-label="게시물 상세">
     <article class="post-modal">
       <button class="modal-close" type="button" id="closePost" aria-label="닫기">×</button>
-      <div class="post-image" id="postImage"><img id="postImageImg" alt="게시물 사진" /><div class="post-image-empty">피드 이미지를 넣으면<br>여기에 크게 보여.</div></div>
+      <div class="post-image" id="postImage"><img id="postImageImg" alt="게시물 사진" /><div class="post-image-empty"></div></div>
       <div class="post-copy">
         <header class="post-head"><div class="post-mini" id="postMini"><img id="postMiniImg" alt="" /></div><b>sihoo</b></header>
         <div class="post-detail-scroll" id="postDetailScroll">
@@ -665,7 +665,7 @@
           document.removeEventListener('pointerdown', startOnFirstGesture, true);
           syncPlayer();
         }catch(error){
-          showToast('음원을 불러오지 못했어요. 링크를 확인해 주세요.');
+          /* 재생을 못 해도 경고 문구는 띄우지 않고 플레이어 상태만 갱신합니다. */
           syncPlayer();
         }
       }
